@@ -1,56 +1,29 @@
 # Individual Report: Lab 3 - Chatbot vs ReAct Agent
 
-- **Student Name**: Nguyen Minh Hieu
-- **Student ID**: 2A202600401
+- **Student Name**: Đỗ Đức Mạnh
+- **Student ID**: 2A202600037
 - **Date**: 2026-04-06
 
 ---
 
 ## I. Technical Contribution (15 Points)
 
-### Modules Implemented
+*Describe your specific contribution to the codebase (e.g., implemented a specific tool, fixed the parser, etc.).*
 
-- **Project Initialization & Scaffolding**: Set up the repository structure, created the initial commit, and pushed the full project skeleton including all core modules in the `group commit` (`f8e3749`).
-- **`src/agent/agent.py`**: Implemented the `ReActAgent` class with the full Thought-Action-Observation loop, including:
-  - System prompt construction with strict ReAct formatting rules.
-  - Iterative reasoning loop with `max_steps` termination.
-  - Regex-based parsing for `Action:` and `Final Answer:` blocks.
-  - Tool dispatch via `_execute_tool()` with error handling.
-- **`src/core/` (Provider Abstraction)**: Set up all LLM provider modules — `llm_provider.py` (base interface), `groq_provider.py`, `openai_provider.py`, `gemini_provider.py`, `local_provider.py` — enabling seamless provider switching.
-- **`src/telemetry/`**: Set up the telemetry subsystem — `logger.py` (structured JSON event logging) and `metrics.py` (`PerformanceTracker` with token/latency/cost tracking).
-- **`chatbot.py`**: Implemented the chatbot baseline with 4 test cases demonstrating limitations of a tool-less LLM on real-time data and multi-step reasoning tasks.
-
-### Code Highlights
-
-**ReAct Loop (agent.py:55-114)** — The core reasoning loop that drives the agent:
-
+- **Modules Implemented**: `src/tools/stock_tools.py`
+- **Code Highlights**:
 ```python
-while steps < self.max_steps:
-    result = self.llm.generate(current_prompt, system_prompt=self.get_system_prompt())
-    response_text = result["content"]
-
-    # Check for Final Answer
-    final_match = re.search(r"Final Answer:\s*(.*)", response_text, re.DOTALL)
-    if final_match:
-        return final_match.group(1).strip()
-
-    # Parse Action
-    action_match = re.search(r"Action:\s*(\w+)\((.*)?\)", response_text, re.DOTALL)
-    if action_match:
-        tool_name = action_match.group(1).strip()
-        tool_args = (action_match.group(2) or "").strip()
-        observation = self._execute_tool(tool_name, tool_args)
-
-        # Append exchange to prompt for next iteration
-        current_prompt = (
-            f"{current_prompt}\n\n"
-            f"{response_text}\n"
-            f"Observation: {observation}\n"
-        )
-    else:
-        return response_text.strip()
-
-    steps += 1
+def is_banking_stock(stock_name: str) -> str:
+    """
+    Check if a stock ticker belongs to the Banking sector.
+    Input: stock ticker symbol (e.g. "VCB", "MBB", "SHB").
+    Returns: A message confirming if it's a bank or not.
+    """
+    banking_tickers = ["VCB", "BID", "CTG", "TBC", "MBB", "TCB", "ACB", "VPB", "HDB", "STB", "SHB", "LPB", "TPB", "VIB", "MSB", "OCB"]
+    ticker = stock_name.upper()
+    if ticker in banking_tickers:
+        return f"{ticker} thuộc nhóm ngành Ngân hàng (Banking)."
+    return f"{ticker} không nằm trong danh sách nhóm Ngân hàng phổ biến hoặc thuộc ngành khác."
 ```
 
 **System Prompt with Strict Rules (agent.py:20-44)** — Prevents hallucination by forcing tool usage:
