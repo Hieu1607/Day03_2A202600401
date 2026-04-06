@@ -1,7 +1,7 @@
 # Group Report: Lab 3 - Production-Grade Agentic System
 
-- **Team Name**: 2A202600401
-- **Team Members**: 2A202600401
+- **Team Name**: X100
+- **Team Members**: Nguyen Quang Dang, Nguyen Minh Tuan, Nguyen Minh Hieu, Hoang Anh Quyen, Nguyen Viet Long
 - **Deployment Date**: 2026-04-06
 
 ---
