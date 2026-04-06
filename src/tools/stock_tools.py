@@ -191,3 +191,66 @@ STOCK_TOOLS = [
     },
 ]
 
+# ── Tool 5: Summarize Stock ───────────────────────────────────
+
+def summarize_stock(args: str) -> str:
+    """
+    Summarize the latest 5 trading days of a Vietnamese stock.
+    Input: JSON string with key "ticker".
+    Example: {"ticker": "FPT"}
+    Returns: JSON string with summary statistics including latest close,
+    average close, highest high, lowest low, total volume, and change percentage.
+    """
+    try:
+        params = json.loads(args) if isinstance(args, str) else args
+        ticker = params["ticker"].upper()
+    except (json.JSONDecodeError, KeyError) as e:
+        return f'Error: Invalid input. Expected JSON with "ticker". Got: {e}'
+
+    data = fetch_Cafef_stock(ticker)
+    if data.startswith("Error"):
+        return data
+
+    try:
+        prices = json.loads(data)
+
+        if not isinstance(prices, list) or len(prices) == 0:
+            return f"Error: No data found for ticker '{ticker}'."
+
+        close_prices = [item["close"] for item in prices]
+        high_prices = [item["high"] for item in prices]
+        low_prices = [item["low"] for item in prices]
+        volumes = [item["volume"] for item in prices]
+
+        start_close = close_prices[0]
+        latest_close = close_prices[-1]
+        change_pct = 0 if start_close == 0 else round((latest_close - start_close) / start_close * 100, 2)
+
+        result = {
+            "ticker": ticker,
+            "period": {
+                "start_date": prices[0]["date"],
+                "end_date": prices[-1]["date"],
+            },
+            "latest_close": latest_close,
+            "average_close": round(sum(close_prices) / len(close_prices), 2),
+            "highest_high": max(high_prices),
+            "lowest_low": min(low_prices),
+            "total_volume": sum(volumes),
+            "change_pct": change_pct,
+        }
+        return json.dumps(result, ensure_ascii=False)
+
+    except Exception as e:
+        return f"Error summarizing stock: {str(e)}"
+
+
+# ── Add to Tool Registry ──────────────────────────────────────
+
+STOCK_TOOLS.append(
+    {
+        "name": "summarize_stock",
+        "description": 'Summarize the latest 5 trading days of a Vietnamese stock. Input: JSON string with "ticker". Example: {"ticker": "FPT"}',
+        "function": summarize_stock,
+    }
+)
