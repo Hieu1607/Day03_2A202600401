@@ -1,3 +1,5 @@
+#stock_tools.py
+
 import requests
 import datetime
 import json
@@ -165,6 +167,20 @@ def calculate(args: str) -> str:
     else:
         return f"Error: Unknown operation '{operation}'. Supported: sum, average, min, max, change_pct."
 
+# ── Tool 5: Check Banking Sector - Do Duc Manh - 2A202600037 
+
+def is_banking_stock(stock_name: str) -> str:
+    """
+    Check if a stock ticker belongs to the Banking sector.
+    Input: stock ticker symbol (e.g. "VCB", "MBB", "SHB").
+    Returns: A message confirming if it's a bank or not.
+    """
+    banking_tickers = ["VCB", "BID", "CTG", "TBC", "MBB", "TCB", "ACB", "VPB", "HDB", "STB", "SHB", "LPB", "TPB", "VIB", "MSB", "OCB"]
+    ticker = stock_name.upper()
+    if ticker in banking_tickers:
+        return f"{ticker} thuộc nhóm ngành Ngân hàng (Banking)."
+    else:
+        return f"{ticker} không nằm trong danh sách nhóm Ngân hàng phổ biến hoặc thuộc ngành khác."
 
 # ── Tool Registry (for ReAct Agent) ───────────────────────────
 
@@ -188,6 +204,12 @@ STOCK_TOOLS = [
         "name": "calculate",
         "description": 'Perform math on a list of numbers. Input: JSON string with "operation" (sum/average/min/max/change_pct) and "values" (list of numbers). Example: {"operation": "average", "values": [95000, 93000, 91000]}',
         "function": calculate,
+    },
+    # Tool 5: Check Banking Sector - Do Duc Manh - 2A202600037
+    {
+        "name": "is_banking_stock",
+        "description": "Kiểm tra xem một mã cổ phiếu có thuộc nhóm ngành Ngân hàng hay không. Input: mã cổ phiếu (e.g. 'SHB', 'FPT').",
+        "function": is_banking_stock,
     },
 ]
 
